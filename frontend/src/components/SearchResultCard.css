@@ -1,0 +1,112 @@
+/* SearchResultCard.css */
+.search-result-card {
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+    padding: 20px;
+    margin: 20px 0;
+    margin-left: 20px; /* Add left margin to create space from the sidebar */
+    width: 100%; /* Adjust card width */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Drop shadow */
+    box-sizing: border-box; /* Ensure padding and border are inside the width */
+    position: relative; /* This is important for positioning the popup relative to the card */
+}
+
+.document-title {
+    font-weight: bold;
+    margin-bottom: 15px !important;
+}
+
+.country-info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.flag-icon {
+    width: 40px;
+    height: 25px;
+    object-fit: cover;
+    border: 1px solid black;
+}
+
+.country-name,
+.document-type,
+.document-date {
+    font-size: 14px;
+    color: black;
+}
+
+.divider {
+    margin: 15px 0;
+}
+
+.search-result {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.search-score {
+    font-size: 24px !important; /* Force the font size to apply */
+    font-weight: bold;
+    margin-right: 20px !important;/* Added more margin to the right */
+    min-width: 60px; /* Increased the width to make scores stand out */
+    text-align: center;
+    color: black;
+}
+
+.search-result-content {
+    flex-grow: 1;
+}
+
+.search-result-title {
+    white-space: pre-line;  /* This ensures that \n is rendered as a new line */
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.search-result-text {
+    color: #555;
+    font-size: 14px;
+}
+
+/* SearchResultCard.css */
+.divider {
+    margin: 15px 0; /* Current margin */
+    margin-bottom: 15px !important; /* Increase bottom margin to add space below */
+}
+
+.message-icon-button {
+    margin-left: auto;
+}
+
+.message-icon-button.active svg {
+    fill: black;
+}
+
+.popup {
+    position: absolute;
+    left: calc(100% + 20px); /* Position the popup 20px to the right of the search result card */
+    width: 40%;
+    background-color: white;
+    border: 1px solid black;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    transform: translateY(-70%);
+    z-index: 1000;
+}
+
+.popup-text {
+    font-size: 14px;
+    color: black;
+}
+
+.close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}

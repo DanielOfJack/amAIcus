@@ -1,0 +1,61 @@
+/* Sidebar.css */
+.sidebar-container {
+    width: 300px;
+    background-color: white;
+    border-radius: 20px;  
+    margin-left: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    position: fixed;
+    top: 14%; /* Sidebar starts at 10% down */
+    bottom: 1%;
+    left: 0;
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid black; /* Thin black outline */
+    background-color: rgb(250, 250, 250);
+  }
+  
+/* Sidebar.css */
+.button-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px; /* Adds horizontal and vertical space between buttons */
+    margin-bottom: 15px;
+  }
+  
+  .custom-button {
+    background-color: white !important;
+    color: black !important;
+    border: 1px solid black;
+    padding: 10px 20px; /* Adds some padding inside the buttons */
+  }
+  
+  .custom-button.active {
+    background-color: black !important;
+    color: white !important;
+  }
+  
+
+  .custom-chip {
+    background-color: black !important; /* Force black background for chips */
+    color: white !important; /* White text */
+  }
+
+  /* Sidebar.css */
+.scrollable-list {
+    max-height: 150px; /* Control the height of the list */
+    overflow-y: auto; /* Ensure vertical scrollability */
+    padding: 5px;
+}
+
+.custom-checkbox {
+    color: black !important; /* Force the checkbox to stay black */
+}
+
+.custom-checkbox.Mui-checked {
+    color: black !important; /* Ensure checked color is black */
+}
