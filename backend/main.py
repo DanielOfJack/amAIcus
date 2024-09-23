@@ -8,6 +8,7 @@ from collections import defaultdict
 from pinecone import Pinecone
 from lxml import etree
 import unicodedata
+import uvicorn
 from fastapi.responses import JSONResponse
 
 from fastapi.responses import Response
