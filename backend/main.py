@@ -504,3 +504,7 @@ def get_document(doc_id: str):
         })
     except Exception as e:
         return JSONResponse(content={"error": f"Error processing document {doc_id}: {e}"}, status_code=500)
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))  # Use the PORT environment variable set by Railway
+    uvicorn.run(app, host="0.0.0.0", port=port)
