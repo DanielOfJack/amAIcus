@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from langchain_openai import OpenAIEmbeddings
 from langchain_pinecone import PineconeVectorStore
 import os
+from fastapi.responses import StreamingResponse
 import json
 from collections import defaultdict
 from pinecone import Pinecone
@@ -10,6 +11,7 @@ from lxml import etree
 import unicodedata
 import uvicorn
 from fastapi.responses import JSONResponse
+from openai import OpenAI
 
 from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
@@ -17,6 +19,8 @@ from fastapi.middleware.gzip import GZipMiddleware
 
 # Initialize OpenAI Embeddings
 embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
+
+client = OpenAI()
 
 # Initialize Pinecone
 pinecone_api_key = os.environ.get("PINECONE_API_KEY")
@@ -505,7 +509,82 @@ def get_document(doc_id: str):
         })
     except Exception as e:
         return JSONResponse(content={"error": f"Error processing document {doc_id}: {e}"}, status_code=500)
+    
+# Model to receive the summarization request
+class SummarizeRequest(BaseModel):
+    eId: str
+    docId: str
+
+@app.post("/summarize")
+async def summarize_section(request: SummarizeRequest):
+    eId = request.eId
+    doc_id = request.docId
+
+    # Get the filename from the doc_id
+    filename = doc_id_to_filename.get(doc_id, "")
+    if not filename:
+        return {"error": f"Filename not found for doc_id: {doc_id}"}
+
+    xml_file_path = os.path.join('expressions', filename)
+    if not os.path.exists(xml_file_path):
+        return {"error": f"XML file not found for doc_id: {doc_id}"}
+
+    # Parse the XML file
+    try:
+        parser = etree.XMLParser(remove_blank_text=True)
+        tree = etree.parse(xml_file_path, parser)
+        root = tree.getroot()
+        nsmap = {"akn": root.nsmap[None]}  # Use namespace
+
+        # Find the element corresponding to the eId
+        element = root.xpath(f"//*[@eId='{eId}']", namespaces=nsmap)
+        if not element:
+            return {"error": f"Element with eId {eId} not found in {filename}"}
+
+        element = element[0]
+        section_text = " ".join(element.xpath(".//text()")).strip()
+
+    except Exception as e:
+        return {"error": f"Error processing XML: {str(e)}"}
+                
+    def stream_openai_response():
+        try:
+            stream = client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are a helpful research assistant for legal research."},
+                    {"role": "user", "content": f"Regarding the following section from a legal document, briefly outline the overall context and relevance of the section. Our goal is to provide the user with an understanding of whether the section is relevant for their research or not. Your response should be a single paragraph of no more than 100 words. Here is the section: {section_text}"}
+                ],
+                stream=True  # Enable streaming
+            )
+
+            # Debug: Track how many chunks we are receiving from OpenAI
+            chunk_count = 0
+
+            for chunk in stream:
+                # Check if chunk has content
+                if chunk.choices[0].delta.content is not None:
+                    content = chunk.choices[0].delta.content
+                    print(f"Chunk {chunk_count}: {content}")  # Debugging: Print each chunk
+                    chunk_count += 1
+                    yield content
+
+            # Debug: Print total chunks received
+            print(f"Total chunks received: {chunk_count}")
+
+        except Exception as e:
+            print(f"Error in streaming OpenAI response: {e}")
+            yield "Error in streaming OpenAI response."
+
+
+    return StreamingResponse(stream_openai_response(), media_type="text/event-stream")
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 8000))  # Use the PORT environment variable set by Railway
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(
+        "main:app",  # Assuming your FastAPI instance is named `app` in a file called `main.py`
+        host="0.0.0.0",
+        port=port,
+        loop="asyncio",  # Use asyncio loop (optional, but may help with streaming)
+        http="h11",  # Use HTTP/1.1
+    )
