@@ -5,4 +5,4 @@ langchain_pinecone
 pinecone-client
 lxml
 uvicorn
-
+openai
